@@ -15,9 +15,9 @@ class Users extends CI_Controller {
 			redirect('users/login');
 		} else {
 			$data['title'] = 'Home';
+			$data['content'] = 'users/home';
 			$this->user->setUserID($this->session->userdata('user_id'));
-			$this->load->view('users/home', $data);
-			print_r($this->session->userdata());
+			$this->load->view('template', $data);
 		}
 	}
 
@@ -37,7 +37,6 @@ class Users extends CI_Controller {
 		$this->form_validation->set_rules('password', 'Contraseña', 'required');
 
 		$validations = array(
-
 			array(
 				'field' => 'username',
 				'label' => 'Nombre de Usuario',
@@ -55,10 +54,7 @@ class Users extends CI_Controller {
 
 		$this->form_validation->set_rules($validations);
 
-
-
 		if($this->form_validation->run() == FALSE) {
-
 			$this->load->view('users/login');
 		} else {  
 			$sessArray = array();
