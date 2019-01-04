@@ -103,6 +103,8 @@ class Users extends CI_Controller {
 			redirect('users/');
 		}
 
-
+		$data['title'] = 'Listado de Usuario';
+		$data['content'] = 'users/list';
+		$this->load->view('template',$data);
 	}
 }

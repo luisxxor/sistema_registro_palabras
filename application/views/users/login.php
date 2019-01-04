@@ -7,7 +7,7 @@
     </head>
     <body class="teal lighten-2">    
         <div class="container">
-            <div class="row">
+            <div class="row" style="height: 100vh; margin: 0">
                 <div class="col offset-s0 s12 offset-m2 m8" id="maincontainer">
                     <div class="card">
                         <?php if(validation_errors()): ?>
@@ -48,7 +48,7 @@
         </div>
         <style>
             #maincontainer {
-                min-height: 100vh;
+                height: 100vh;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
