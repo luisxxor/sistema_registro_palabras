@@ -44,10 +44,10 @@ class Users extends CI_Controller {
 			),
 			array(
 				'field' => 'password',
-				'label' => 'Password',
+				'label' => 'Contraseña',
 				'rules' => 'required|trim',
 				'errors' => array(
-					'required' => 'You must provide a %s.'
+					'required' => 'Este campo es obligatorio.'
 				)
 			)
 		);
@@ -85,6 +85,16 @@ class Users extends CI_Controller {
 		}
 	}
 
+	function getUsers() {
+		if (!$this->session->userdata('is_admin')) {
+			redirect('403');
+		}
+		$data['users'] = $this->user->getAll();
+		header('Content-Type: application/json');
+		echo json_encode(['users' => $data['users']]);
+
+	}
+
 	public function logout() {
         $this->session->unset_userdata('id');
         $this->session->unset_userdata('name');
@@ -103,8 +113,94 @@ class Users extends CI_Controller {
 			redirect('users/');
 		}
 
-		$data['title'] = 'Listado de Usuario';
+		$data['title'] = 'Listado de Usuarios';
 		$data['content'] = 'users/list';
+		$data['vue'] = TRUE;
 		$this->load->view('template',$data);
+	}
+
+	public function create() {
+		if ($this->session->userdata('is_authenticated') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		} else if($this->session->userdata('is_admin') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		}
+
+		$data = json_decode($this->input->post('user_form'),true);
+
+		$result = $this->user->form_insert($data);
+
+		if($result > 0)
+		{
+			echo json_encode(['status' => '201', 'message' => 'Usuario creado exitosamente']);
+		}
+		else
+		{
+			echo json_encode(['status' => '500', 'message' => 'Usuario no creado, ha ocurrido un error']);
+		}
+	}
+
+	public function update() {
+		if ($this->session->userdata('is_authenticated') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		} else if($this->session->userdata('is_admin') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		}
+
+		$data = json_decode($this->input->post('user_form'),true);
+
+		$result = $this->user->form_update($data);
+
+		if($result > 0)
+		{
+			echo json_encode(['status' => '200', 'message' => 'Usuario actualizado exitosamente']);
+		}
+		else
+		{
+			echo json_encode(['status' => '500', 'message' => 'Usuario no actualizado, ha ocurrido un error', 'response' => $result]);
+		}
+	}
+
+	public function delete() {
+		if ($this->session->userdata('is_authenticated') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		} else if($this->session->userdata('is_admin') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		}
+
+		$id = $this->input->post('id');
+
+		$result = $this->user->delete($id);
+
+		if($result > 0)
+		{
+			echo json_encode(['status' => '200', 'message' => 'Usuario eliminado correctamente']);
+		}
+		else
+		{
+			echo json_encode(['status' => '500', 'message' => 'Usuario no eliminado, ha ocurrido un error', 'response' => $result]);
+		}
+	}
+
+	public function usernameIsAvailable() {
+		if ($this->session->userdata('is_authenticated') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		} else if($this->session->userdata('is_admin') == FALSE) {
+			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			return null;
+		}
+
+		$data = json_decode($this->input->post('usernameTest'),true);
+
+		$result = $this->user->usernameIsAvailable($data['id'],$data['username']);
+
+		echo json_encode(['response' => $result]);
 	}
 }

@@ -18,12 +18,38 @@ class User_model extends CI_Model {
         $this->_password = $password;
     }       
 
-    public function insertar($data){
+    public function form_insert($data){
         $this->db->insert('users', array(
             'username' => $data['username'],
             'password' => $data['password'],
-            'is_admin' => $data['is_admin'],
+            'is_admin' => $data['is_admin'] || 0,
         ));
+        return $this->db->affected_rows();
+    }
+
+    public function form_update($data) {
+        $update_data = array(
+            'username' => $data['username'],
+            'is_admin' => $data['is_admin'] || 0,
+        );
+
+        if(isset($data['password']))
+        {
+            if($data['password'] != null)
+            {
+                $update_data['password'] = $data['password'];
+            }
+        }
+
+        $this->db->update('users',$update_data,array('id' => $data['id']));
+        return $this->db->affected_rows();
+    }
+
+    public function delete($id) {
+        $this->db->where('id', $id);
+        $this->db->delete('users');
+
+        return $this->db->affected_rows();
     }
 
     public function getUserInfo() {
@@ -46,5 +72,23 @@ class User_model extends CI_Model {
         } else {
             return false;
         }
-    }    
+    }
+    
+    public function getAll() {
+        $this->db->select('id,username,is_admin');
+        $this->db->from('users');
+        $query = $this->db->get();
+        $result = $query->result();
+
+        return $result;
+    }
+
+    public function usernameIsAvailable($id,$username) {
+        $this->db->select('id');
+        $this->db->from('users');
+        $this->db->where('username',$username);
+        $this->db->where('id !=',$id);
+        $query = $this->db->get();
+        return $query->num_rows() == 0;
+    }
 }
