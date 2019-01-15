@@ -16,9 +16,14 @@
       <a href="#" id="hamburger-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <a href="<?= site_url('/') ?>" class="brand-logo">Esteno</a>
       <ul class="links">
+        <?PHP if(!$this->session->userdata('is_admin')): ?>
+          <li></li>
+        <?PHP endif; ?>
         <li><a href="<?= site_url('/captioners/') ?>">Digitadores</a></li>
         <li><a href="<?= site_url('/errors/') ?>">Errores</a></li>
-        <li><a href="<?= site_url('/users/list') ?>">Usuarios</a></li>
+        <?PHP if($this->session->userdata('is_admin')): ?>
+          <li><a href="<?= site_url('/users/list') ?>">Usuarios</a></li>
+        <?PHP endif; ?>
         <li><a class="logout-button" href="<?=site_url('/users/logout')?>">Cerrar Sesión</a></li>
       </ul>
     </nav>
@@ -27,9 +32,11 @@
     <nav>
       <ul class="links" class="sidenav grey darken-4 white-text">
         <li><a class="white-text" href="<?= site_url('/') ?>">Esteno</a></li>
-        <li><a class="white-text" href="collapsible.html">Digitadores</a></li>
-        <li><a class="white-text" href="sass.html">Errores</a></li>
-        <li><a class="white-text" href="<?= site_url('/users/list') ?>">Usuarios</a></li>
+        <li><a href="<?= site_url('/captioners/') ?>">Digitadores</a></li>
+        <li><a href="<?= site_url('/errors/') ?>">Errores</a></li>
+        <?PHP if($this->session->userdata('is_admin')): ?>
+          <li><a href="<?= site_url('/users/list') ?>">Usuarios</a></li>
+        <?PHP endif; ?>
         <li class="red darken-1"><a class="white-text" href="'<?=site_url('users/logout')?>'">Cerrar sesión</a></li>
       </ul>
     </nav>

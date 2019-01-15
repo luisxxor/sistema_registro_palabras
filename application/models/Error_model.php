@@ -50,4 +50,14 @@ class Error_model extends CI_Model {
 
         return $result;
     }
+
+    public function errorIsAlreadyRegistered($id = NULL,$word,$captioner_id) {
+        $this->db->select('id');
+        $this->db->from('errors');
+        $this->db->where('word',$word);
+        $this->db->where('captioner_id',$captioner_id);
+        $this->db->where('id!=',$id);
+        $query = $this->db->get();
+        return $query->num_rows() == 1;
+    }
 }
