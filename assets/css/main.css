@@ -1,0 +1,102 @@
+@import url("https://fonts.googleapis.com/css?family=Lato");
+
+body {
+	font-family: Lato, "sans-serif";
+}
+
+#hamburger-menu,
+#aside {
+	display: none;
+}
+
+#header {
+	background: #222222;
+}
+
+#header nav {
+	height: 70px;
+	display: grid;
+	grid-template: auto / 20% 1fr;
+	padding: 0 2em;
+}
+
+#header nav .links {
+	display: grid;
+	grid-template-columns: minmax(1px, 1fr) repeat(3, minmax(auto, 100px)) minmax(
+			100px,
+			150px
+		);
+	list-style: none;
+	text-decoration: none;
+	justify-items: center;
+	align-items: center;
+}
+#header .links li:nth-child(1) {
+	grid-column: 2;
+}
+#header .links li:last-child {
+	justify-self: end;
+}
+#header a {
+	text-decoration: none;
+	color: white;
+	font-weight: bold;
+}
+#header .brand-logo {
+	text-align: center;
+	align-self: center;
+	font-size: 2em;
+	font-weight: 100;
+}
+#header .links li a {
+	padding: 1em;
+	border-radius: 5px;
+	transition: all 0.2s ease-in-out;
+}
+.links li a:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+@media screen and (max-width: 767px) {
+	#header nav .links {
+		display: none;
+	}
+	#header .brand-logo {
+		text-align: center;
+	}
+	#header nav {
+		grid-template: auto / 20% 1fr 20%;
+	}
+	#hamburger-menu,
+	#aside {
+		display: block;
+	}
+	#hamburger-menu {
+		align-self: center;
+	}
+	#hamburger-menu i {
+		font-size: 2em;
+	}
+	#aside {
+		background-color: #222222;
+		position: absolute;
+		transform: translate(-250px, 0);
+		width: 250px;
+		transition: transform 0.4s ease;
+		z-index: 1;
+	}
+	#aside.active {
+		transform: translate(0, 0);
+	}
+	#aside .links {
+		padding: 0;
+		list-style: none;
+	}
+	#aside .links li a {
+		padding: 1em 3em;
+		display: block;
+		text-align: center;
+		text-decoration: none;
+		color: white;
+		transition: all 0.2s ease-in-out;
+	}
+}
