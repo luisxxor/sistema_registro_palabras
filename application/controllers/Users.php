@@ -114,7 +114,7 @@ class Users extends CI_Controller {
 		}
 
 		$data['title'] = 'Listado de Usuarios';
-		$data['content'] = 'users/list';
+		$data['content'] = 'users/index.php';
 		$data['vue'] = TRUE;
 		$this->load->view('template',$data);
 	}

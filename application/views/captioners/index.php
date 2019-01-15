@@ -51,6 +51,8 @@
             :items="captioners"
             class="elevation-1"
             :loading="loading"
+            no-data-text="No hay registros"
+            rows-per-page-text="Elementos por página"
           >
             <template slot="items" slot-scope="props">
               <td class="text-xs-left">{{ props.item.id }}</td>
@@ -82,6 +84,9 @@
                   Eliminar
                 </v-tooltip>
               </td>
+            </template>
+            <template slot="pageText" slot-scope="props">
+              Mostrando elementos: {{ props.pageStart }} al {{ props.pageStop }} de {{ props.itemsLength }}
             </template>
           </v-data-table>
         </v-card>

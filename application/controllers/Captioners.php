@@ -12,7 +12,9 @@ class Captioners extends CI_Controller {
 	public function index()
 	{
         if($this->session->userdata('is_admin') == FALSE) {
-			redirect('users/');
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
+			return null;
 		}
 
 		$data['title'] = 'Listado de Captioners';
@@ -22,8 +24,10 @@ class Captioners extends CI_Controller {
 	}
 
 	function read() {
-		if (!$this->session->userdata('is_admin')) {
-			redirect('403');
+		if (!$this->session->userdata('is_authenticated')) {
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
+			return null;
 		}
 		$data['captioners'] = $this->captioner->getAll();
 		header('Content-Type: application/json');

@@ -9,113 +9,132 @@
 
 <div id="app">
   <v-app>
-  <v-container>
-    <h2 v-cloak>Listado de Errores</h2>
-    <v-layout>
-      <v-flex>
-        <v-dialog v-model="dialog" max-width="500px">
-          <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Crear error</v-btn>
-          <v-card>
-            <v-card-title>
-              <span v-cloak class="headline">{{ formTitle }}</span>
-            </v-card-title>
+    <v-container>
+      <h2 v-cloak>Listado de Errores</h2>
+      <v-snackbar
+        v-cloak
+        v-model="snackbar.show"
+        :timeout="6000"
+        :top="true"
+        color="error"
+      >
+        {{ snackbar.message }}
+      </v-snackbar>
+      <v-layout>
+        <v-flex>
+          <v-dialog v-model="dialog" max-width="500px">
+            <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Crear error</v-btn>
+            <v-card>
+              <v-card-title>
+                <span v-cloak class="headline">{{ formTitle }}</span>
+              </v-card-title>
 
-            <v-card-text>
-              <v-container>
-                <v-layout wrap>
-                    <v-flex xs12>
-                      <v-text-field v-model="editedItem.word" :rules="[rules.required]" label="Palabra"></v-text-field>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-select :items="captioners" label="Digitador" v-model="editedItem.captioner_id"></v-select>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-menu
-                        ref="menu"
-                        :close-on-content-click="false"
-                        v-model="menu"
-                        :nudge-right="40"
-                        :return-value.sync="editedItem.error_date"
-                        lazy
-                        transition="scale-transition"
-                        offset-y
-                        full-width
-                        min-width="290px"
-                      >
-                        <v-text-field
-                          slot="activator"
-                          v-model="editedItem.error_date"
-                          label="Fecha del error"
-                          prepend-icon="event"
-                          readonly
-                        ></v-text-field>
-                        <v-date-picker
-                        v-model="editedItem.error_date"
-                        max="<?=Date('Y-m-d')?>"
-                        no-title
-                        scrollable
+              <v-card-text>
+                <v-container>
+                  <v-layout wrap>
+                    <v-form ref="form" style="display: contents">
+                      <v-flex xs12>
+                        <v-text-field v-model="editedItem.word" :rules="[rules.required]" label="Palabra"></v-text-field>
+                      </v-flex>
+                      <v-flex xs12>
+                        <v-select no-data-text="No hay digitadores registrados" :items="captioners" label="Digitador" :rules="[rules.required]" v-model="editedItem.captioner_id"></v-select>
+                      </v-flex>
+                      <v-flex xs12>
+                        <v-menu
+                          ref="menu"
+                          :close-on-content-click="false"
+                          v-model="menu"
+                          :nudge-right="40"
+                          :return-value.sync="editedItem.error_date"
+                          lazy
+                          transition="scale-transition"
+                          offset-y
+                          full-width
+                          min-width="290px"
                         >
-                          <v-spacer></v-spacer>
-                          <v-btn v-cloak flat color="primary" @click="menu = false">Cancelar</v-btn>
-                          <v-btn v-cloak flat color="primary" @click="$refs.menu.save(editedItem.error_date)">OK</v-btn>
-                        </v-date-picker>
-                      </v-menu>
-                    </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
+                          <v-text-field
+                            slot="activator"
+                            v-model="editedItem.error_date"
+                            label="Fecha del error"
+                            prepend-icon="event"
+                            readonly
+                            :rules="[rules.required]"
+                          ></v-text-field>
+                          <v-date-picker
+                          v-model="editedItem.error_date"
+                          max="<?=Date('Y-m-d')?>"
+                          no-title
+                          scrollable
+                          >
+                            <v-spacer></v-spacer>
+                            <v-btn v-cloak flat color="primary" @click="menu = false">Cancelar</v-btn>
+                            <v-btn v-cloak flat color="primary" @click="$refs.menu.save(editedItem.error_date)">OK</v-btn>
+                          </v-date-picker>
+                        </v-menu>
+                      </v-flex>
+                    </v-form>
+                  </v-layout>
+                </v-container>
+              </v-card-text>
 
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn v-cloak color="blue darken-1" flat @click="close">Cancelar</v-btn>
-              <v-btn v-cloak color="blue darken-1" flat @click="save" :disabled="!canSubmit" >Guardar</v-btn>
-            </v-card-actions>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn v-cloak color="blue darken-1" flat @click="close">Cancelar</v-btn>
+                <v-btn v-cloak color="blue darken-1" flat @click="save" :disabled="!canSubmit" >Guardar</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-card>
+            <v-data-table
+              :headers="headers"
+              :items="captioners_errors"
+              class="elevation-1"
+              :loading="loading"
+              no-data-text="No hay registros"
+              rows-per-page-text="Elementos por página"
+            >
+              <template slot="items" slot-scope="props">
+                <td class="text-xs-left">{{ props.item.id }}</td>
+                <td class="text-xs-left">{{ props.item.word }}</td>
+                <td class="text-xs-left">{{ props.item.fullname }}</td>
+                <td class="text-xs-left">{{ props.item.error_date }}</td>
+                <td class="text-xs-left">{{ props.item.username }}</td>
+                <?PHP if($this->session->userdata('is_admin')): ?>
+                  <td class="justify-start layout">
+                    <v-tooltip left>
+                      <v-icon
+                        slot="activator"
+                        small
+                        class="mr-2"
+                        @click="editItem(props.item)"
+                        style="height: 100%; margin: auto 0;"
+                      >
+                        edit
+                      </v-icon>
+                      Editar
+                    </v-tooltip>
+                    <v-tooltip right>
+                      <v-icon
+                        slot="activator"
+                        small
+                        @click="deleteItem(props.item)"
+                        style="height: 100%; margin: auto 0;"
+                      >
+                        delete
+                      </v-icon>
+                      Eliminar
+                    </v-tooltip>
+                  </td>
+                <?PHP endif; ?>
+              </template>
+              <template slot="pageText" slot-scope="props">
+                Mostrando elementos: {{ props.pageStart }} al {{ props.pageStop }} de {{ props.itemsLength }}
+              </template>
+            </v-data-table>
           </v-card>
-        </v-dialog>
-        <v-card>
-          <v-data-table
-            :headers="headers"
-            :items="captioners_errors"
-            class="elevation-1"
-            :loading="loading"
-          >
-            <template slot="items" slot-scope="props">
-              <td class="text-xs-left">{{ props.item.id }}</td>
-              <td class="text-xs-left">{{ props.item.word }}</td>
-              <td class="text-xs-left">{{ props.item.fullname }}</td>
-              <td class="text-xs-left">{{ props.item.error_date }}</td>
-              <td class="text-xs-left">{{ props.item.username }}</td>
-              <td class="justify-start layout">
-                <v-tooltip left>
-                  <v-icon
-                    slot="activator"
-                    small
-                    class="mr-2"
-                    @click="editItem(props.item)"
-                    style="height: 100%; margin: auto 0;"
-                  >
-                    edit
-                  </v-icon>
-                  Editar
-                </v-tooltip>
-                <v-tooltip right>
-                  <v-icon
-                    slot="activator"
-                    small
-                    @click="deleteItem(props.item)"
-                    style="height: 100%; margin: auto 0;"
-                  >
-                    delete
-                  </v-icon>
-                  Eliminar
-                </v-tooltip>
-              </td>
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-flex>
-    </v-layout>
-  </v-container>
+        </v-flex>
+      </v-layout>
+    </v-container>
   </v-app>
 </div>
 
@@ -139,7 +158,9 @@ new Vue({
       {text: 'Digitador', value: 'fullname', sortable: true},
       {text: 'Fecha', value:"error_date", sortable: true},
       {text: 'Registrado por', value:"username", sortable: true},
-      {text: 'Acciones', value: "actions", sortable: false}
+      <?PHP if($this->session->userdata('is_admin')): ?>
+        {text: 'Acciones', value: "actions", sortable: false}
+      <?PHP endif; ?>
     ],
     loading: false,
     editedItem: {
@@ -161,6 +182,10 @@ new Vue({
     rules: {
       required: value => !!value || 'Este campo es requerido.',
       maxLength: value => value.length < 10 || 'STAPH'
+    },
+    snackbar: {
+      show: false,
+      message: ''
     }
   },
   methods: {
@@ -241,34 +266,50 @@ new Vue({
       })
     },
     save(){
-      let data = new FormData();
-      data.append('error_form',JSON.stringify(this.editedItem));
-      if(this.editedItem.id == null)
+      if(this.$refs.form.validate())
       {
-        axios.post('create',data)
-        .then(response => {
-          swal('Excelente!','Error creado correctamente','success')
-          .then(val => {
-            this.load();
-            this.dialog = false;
-          })
-        })
-        .catch(error => {
-          this.load();
-        })
-      }
-      else
-      {
-        axios.post('update',data)
-        .then(response => {
-          swal('Excelente!','Error actualizado correctamente','success')
-          .then(val => {
-            this.load();
-            this.dialog = false;
-          })
-        })
-        .catch(error => {
-          this.load();
+        let data = new FormData();
+        data.append('error_form',JSON.stringify(this.editedItem));
+        axios.post('errorIsRegistered',data).
+        then( ({data: {errorIsRegistered}}) => {
+          if(errorIsRegistered)
+          {
+            this.snackbar = {
+              show: true,
+              message: 'Este error ya ha sido registrado'
+            }
+          }
+          else
+          {
+            if(this.editedItem.id == null)
+            {
+              axios.post('create',data)
+              .then(response => {
+                swal('Excelente!','Error creado correctamente','success')
+                .then(val => {
+                  this.load();
+                  this.dialog = false;
+                })
+              })
+              .catch(error => {
+                this.load();
+              })
+            }
+            else
+            {
+              axios.post('update',data)
+              .then(response => {
+                swal('Excelente!','Error actualizado correctamente','success')
+                .then(val => {
+                  this.load();
+                  this.dialog = false;
+                })
+              })
+              .catch(error => {
+                this.load();
+              })
+            }
+          }
         })
       }
     },

@@ -28,8 +28,10 @@ class Errors extends CI_Controller {
 	}
 
 	function read() {
-		if (!$this->session->userdata('is_admin')) {
-			redirect('403');
+		if (!$this->session->userdata('is_authenticated')) {
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
+			return null;
 		}
 		$data['captioners_errors'] = $this->error->getAll();
 		header('Content-Type: application/json');
@@ -39,7 +41,8 @@ class Errors extends CI_Controller {
 
 	public function create() {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
 			return null;
 		}
 
@@ -60,10 +63,12 @@ class Errors extends CI_Controller {
 
 	public function update() {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
 			return null;
 		} else if($this->session->userdata('is_admin') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
 			return null;
 		}
 
@@ -84,10 +89,12 @@ class Errors extends CI_Controller {
 
 	public function delete() {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
 			return null;
 		} else if($this->session->userdata('is_admin') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
+			http_response_code(403);
+			echo json_encode(['message' => 'Permission Denied']);
 			return null;
 		}
 
@@ -102,6 +109,36 @@ class Errors extends CI_Controller {
 		else
 		{
 			echo json_encode(['status' => '500', 'message' => 'Error no eliminado, ha ocurrido un problema', 'response' => $result]);
+		}
+	}
+
+	public function errorIsRegistered() {
+		if($this->input->method(TRUE) == 'POST')
+		{
+			if($this->input->post('error_form'))
+			{
+				$data = json_decode($this->input->post('error_form'),TRUE);
+
+				$response = $this->error->errorIsAlreadyRegistered($data['id'],$data['word'],$data['captioner_id']);
+
+				echo json_encode([
+					'errorIsRegistered' => $response
+				]);
+			}
+			else
+			{
+				http_response_code(400);
+				echo json_encode([
+					'message' => 'bad request'
+				]);
+			}
+		}
+		else
+		{
+			http_response_code(400);
+			echo json_encode([
+				'message' => 'bad request'
+			]);
 		}
 	}
 }
