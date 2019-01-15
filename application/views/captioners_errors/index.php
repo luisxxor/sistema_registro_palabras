@@ -10,11 +10,11 @@
 <div id="app">
   <v-app>
   <v-container>
-    <h2 v-cloak>Listado de Digitadores</h2>
+    <h2 v-cloak>Listado de Errores</h2>
     <v-layout>
       <v-flex>
         <v-dialog v-model="dialog" max-width="500px">
-          <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Crear digitador</v-btn>
+          <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Crear error</v-btn>
           <v-card>
             <v-card-title>
               <span v-cloak class="headline">{{ formTitle }}</span>
@@ -23,17 +23,44 @@
             <v-card-text>
               <v-container>
                 <v-layout wrap>
-                <v-form ref="form" style="display: contents">
-                  <v-flex xs12>
-                    <v-text-field v-model="editedItem.name" :rules="[rules.required]" label="Nombre"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12>
-                    <v-text-field v-model="editedItem.lastname" label="Apellido"></v-text-field>
-                  </v-flex>
-                  <v-flex xs12>
-                    <v-text-field @input="handleRut" :error-messages="rutErrors" :rules="[rules.required]" maxlength="12" v-model="editedItem.rut" label="RUT"></v-text-field>
-                  </v-flex>
-                </v-form>
+                    <v-flex xs12>
+                      <v-text-field v-model="editedItem.word" :rules="[rules.required]" label="Palabra"></v-text-field>
+                    </v-flex>
+                    <v-flex xs12>
+                      <v-select :items="captioners" label="Digitador" v-model="editedItem.captioner_id"></v-select>
+                    </v-flex>
+                    <v-flex xs12>
+                      <v-menu
+                        ref="menu"
+                        :close-on-content-click="false"
+                        v-model="menu"
+                        :nudge-right="40"
+                        :return-value.sync="editedItem.error_date"
+                        lazy
+                        transition="scale-transition"
+                        offset-y
+                        full-width
+                        min-width="290px"
+                      >
+                        <v-text-field
+                          slot="activator"
+                          v-model="editedItem.error_date"
+                          label="Fecha del error"
+                          prepend-icon="event"
+                          readonly
+                        ></v-text-field>
+                        <v-date-picker
+                        v-model="editedItem.error_date"
+                        max="<?=Date('Y-m-d')?>"
+                        no-title
+                        scrollable
+                        >
+                          <v-spacer></v-spacer>
+                          <v-btn v-cloak flat color="primary" @click="menu = false">Cancelar</v-btn>
+                          <v-btn v-cloak flat color="primary" @click="$refs.menu.save(editedItem.error_date)">OK</v-btn>
+                        </v-date-picker>
+                      </v-menu>
+                    </v-flex>
                 </v-layout>
               </v-container>
             </v-card-text>
@@ -48,15 +75,16 @@
         <v-card>
           <v-data-table
             :headers="headers"
-            :items="captioners"
+            :items="captioners_errors"
             class="elevation-1"
             :loading="loading"
           >
             <template slot="items" slot-scope="props">
               <td class="text-xs-left">{{ props.item.id }}</td>
-              <td class="text-xs-left">{{ props.item.name }}</td>
-              <td class="text-xs-left">{{ props.item.lastname }}</td>
-              <td class="text-xs-left">{{ props.item.rut }}</td>
+              <td class="text-xs-left">{{ props.item.word }}</td>
+              <td class="text-xs-left">{{ props.item.fullname }}</td>
+              <td class="text-xs-left">{{ props.item.error_date }}</td>
+              <td class="text-xs-left">{{ props.item.username }}</td>
               <td class="justify-start layout">
                 <v-tooltip left>
                   <v-icon
@@ -99,7 +127,7 @@
 new Vue({
   el: '#app',
   data: {
-    captioners: [],
+    captioners_errors: [],
     headers: [
       {
         text: 'ID',
@@ -107,26 +135,29 @@ new Vue({
         sortable: true,
         value: 'id'
       },
-      {text: 'Nombres', value: 'name', sortable: true},
-      {text: 'Apellidos', value: 'lastname', sortable: true },
-      {text: 'RUT', value:"rut", sortable: false},
+      {text: 'Palabra', value: 'word', sortable: true },
+      {text: 'Digitador', value: 'fullname', sortable: true},
+      {text: 'Fecha', value:"error_date", sortable: true},
+      {text: 'Registrado por', value:"username", sortable: true},
       {text: 'Acciones', value: "actions", sortable: false}
     ],
     loading: false,
     editedItem: {
       id: null,
-      name: '',
-      lastname: '',
-      rut: ''
+      word: '',
+      captioner_id: '',
+      error_date: ''
     },
     defaultItem: {
       id: null,
-      name: '',
-      lastname: '',
-      rut: ''
+      word: '',
+      captioner_id: '',
+      error_date: ''
     },
+    captioners: [],
     editedIndex: -1,
     dialog: false,
+    menu: false,
     rules: {
       required: value => !!value || 'Este campo es requerido.',
       maxLength: value => value.length < 10 || 'STAPH'
@@ -138,22 +169,34 @@ new Vue({
       axios.get('read')
       .then(response => {
         this.loading = false;
-        this.captioners = response.data.captioners
+        this.captioners_errors = response.data.captioners_errors
       })
       .catch(error => {
         this.loading = false;
-        console.log(error)
       })
     },
     editItem(item){
-      this.dialog = true;
-      this.editedIndex = this.captioners.indexOf(item);
-      this.editedItem = Object.assign({},item);
+      axios.get('',{
+        params: {
+          id: item.id
+        }
+      })
+      .then(({
+        data: {
+          captioner_error: {
+            0: result
+          }
+        }
+      }) => {
+        this.editedItem = Object.assign({},result)
+        this.dialog = true;
+        this.editedIndex = result.id;
+      })
     },
     deleteItem(item){
       Swal({
         title: '¿Estás seguro?',
-        text: "¡El digitador será eliminado para siempre! ¡y con él todos los errores relacionados!",
+        text: "¡El error será eliminado para siempre!",
         type: 'warning',
         showCancelButton: true,
         confirmButtonText: '¡Si! ¡eliminar!',
@@ -169,7 +212,7 @@ new Vue({
             {
               Swal(
                 '¡Eliminado!',
-                'El digitador ha sido eliminado.',
+                'El error ha sido eliminado.',
                 'success'
               ).then(response => {
                 this.load();
@@ -191,7 +234,7 @@ new Vue({
         ) {
           Swal(
             'Cancelado',
-            'El digitador no fue eliminado.',
+            'El error no fue eliminado.',
             'success'
           )
         }
@@ -199,118 +242,74 @@ new Vue({
     },
     save(){
       let data = new FormData();
-      data.append('captioner_form',JSON.stringify(this.editedItem));
-      if(this.$refs.form.validate())
+      data.append('error_form',JSON.stringify(this.editedItem));
+      if(this.editedItem.id == null)
       {
-        if(this.editedItem.id == null)
-        {
-          axios.post('create',data)
-          .then(response => {
-            swal('Excelente!','Captioner creado correctamente','success')
-            .then(val => {
-              this.load();
-              this.dialog = false;
-            })
-          })
-          .catch(error => {
+        axios.post('create',data)
+        .then(response => {
+          swal('Excelente!','Error creado correctamente','success')
+          .then(val => {
             this.load();
+            this.dialog = false;
           })
-        }
-        else
-        {
-          axios.post('update',data)
-          .then(response => {
-            swal('Excelente!','Captioner actualizado correctamente','success')
-            .then(val => {
-              this.load();
-              this.dialog = false;
-            })
-          })
-          .catch(error => {
+        })
+        .catch(error => {
+          this.load();
+        })
+      }
+      else
+      {
+        axios.post('update',data)
+        .then(response => {
+          swal('Excelente!','Error actualizado correctamente','success')
+          .then(val => {
             this.load();
+            this.dialog = false;
           })
-        }
+        })
+        .catch(error => {
+          this.load();
+        })
       }
     },
     close(){
       this.dialog = false;
-      this.$refs.form.reset()
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       }, 300)
     },
-    cleanRut(rut) {
-      return rut.replace(/[^0-9kK]+/g,'').toLowerCase();
-    },
-    formatRut(rut) {
-      if (rut.length > 1) {
-        rut = rut.slice(0,-1)+'-'+rut.slice(-1);
-      if (rut.length > 5) {
-        if (rut.length > 8) {
-            return rut.slice(0,-8)+'.'+rut.slice(-8,-5) +'.'+rut.slice(-5);
-          }
-        return rut.slice(0,-5) +'.'+rut.slice(-5);
-        }
-      }
-      return rut
-    },
-    validateRut(rut) {
-      let pattern = /^0*(\d{1,3}(\.?\d{3})*)\-?([\dkK])$/
-      if (pattern.test(rut)) {
-        let numberRut = this.cleanRut(rut).slice(0, -1);
-        let auxArray = [3, 2, 7, 6, 5, 4, 3, 2];
-        let sum = 0;
-
-        for (let i = numberRut.length - 1; i >= 0; i--) {
-          sum += parseInt(numberRut[i]) * auxArray[i];
-        }
-        switch (11 - sum % 11) {
-          case 11:
-            return rut.slice(-1) == 0;
-          case 10:
-            return rut.slice(-1) == 'k';
-          default:
-            return rut.slice(-1) == 11 - sum % 11;
-        }
-      }
-      return false;
-    },
-    handleRut() {
-      this.editedItem.rut = this.formatRut(this.cleanRut(this.editedItem.rut));
-    }
-
   },
   created() {
     this.load();
+    axios.get('../captioners/read')
+    .then(response => {
+      let captioners = response.data.captioners;
+
+      let formattedCaptioners = [];
+
+      captioners.forEach((item,index) => {
+        formattedCaptioners.push({
+          text: `${item.name} ${item.lastname.length > 0 ? item.lastname : ''} - ${item.rut}`,
+          value: item.id
+        })
+      })
+
+      this.captioners = formattedCaptioners;
+    })
   },
   computed: {
     formTitle () {
-      return this.editedIndex === -1 ? 'Nuevo digitador' : 'Editar digitador'
-    },
-    rutErrors() {
-      const errors = [];
-      if(this.editedItem.rut.length > 0)
-      {
-        if(!this.validateRut(this.editedItem.rut) || this.editedItem.rut.length < 8)
-        {
-          errors.push('Este RUT no es válido')
-        }
-      }
-      
-      return errors;
+      return this.editedIndex === -1 ? 'Nuevo error' : 'Editar error'
     },
     canSubmit() {
-      return this.editedItem.name.length > 0 && this.editedItem.rut.length > 0 && this.rutErrors.length == 0;
+      return true;
     }
   },
   watch: {
     dialog (val) {
       val || this.close()
     }
-  },
-  filters: {
-    rut: val => this.formatRut(this.cleanRut(value))
   }
 });
 
