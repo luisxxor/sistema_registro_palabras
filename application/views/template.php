@@ -49,6 +49,10 @@
 </body>
 
 <style>
+  body {
+    max-height: 100vh;
+  }
+
   .brand-logo {
     margin-left: 1em;
   }

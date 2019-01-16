@@ -10,7 +10,7 @@
 <div id="app">
   <v-app>
     <v-container>
-      <h2 v-cloak>Listado de Errores</h2>
+      <h2 v-cloak class="text-xs-center">Listado de Errores</h2>
       <v-snackbar
         v-cloak
         v-model="snackbar.show"
@@ -23,7 +23,7 @@
       <v-layout>
         <v-flex>
           <v-dialog v-model="dialog" max-width="500px">
-            <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Crear error</v-btn>
+            <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Añadir error</v-btn>
             <v-card>
               <v-card-title>
                 <span v-cloak class="headline">{{ formTitle }}</span>
@@ -65,6 +65,7 @@
                           max="<?=Date('Y-m-d')?>"
                           no-title
                           scrollable
+                          locale="es-es"
                           >
                             <v-spacer></v-spacer>
                             <v-btn v-cloak flat color="primary" @click="menu = false">Cancelar</v-btn>

@@ -11,7 +11,7 @@ class Captioners extends CI_Controller {
 	
 	public function index()
 	{
-        if($this->session->userdata('is_admin') == FALSE) {
+        if($this->session->userdata('is_authenticated') == FALSE) {
 			http_response_code(403);
 			echo json_encode(['message' => 'Permission Denied']);
 			return null;
@@ -39,9 +39,6 @@ class Captioners extends CI_Controller {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
 			echo json_encode(['status' => '403','message' => 'Permission Denied']);
 			return null;
-		} else if($this->session->userdata('is_admin') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
-			return null;
 		}
 
 		$data = json_decode($this->input->post('captioner_form'),true);
@@ -50,19 +47,16 @@ class Captioners extends CI_Controller {
 
 		if($result > 0)
 		{
-			echo json_encode(['status' => '201', 'message' => 'Captioner creado exitosamente']);
+			echo json_encode(['status' => '201', 'message' => 'Digitador creado exitosamente']);
 		}
 		else
 		{
-			echo json_encode(['status' => '500', 'message' => 'Captioner no creado, ha ocurrido un error']);
+			echo json_encode(['status' => '500', 'message' => 'Digitador no creado, ha ocurrido un error']);
 		}
 	}
 
 	public function update() {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
-			return null;
-		} else if($this->session->userdata('is_admin') == FALSE) {
 			echo json_encode(['status' => '403','message' => 'Permission Denied']);
 			return null;
 		}
@@ -73,19 +67,16 @@ class Captioners extends CI_Controller {
 
 		if($result > 0)
 		{
-			echo json_encode(['status' => '200', 'message' => 'Captioner actualizado exitosamente']);
+			echo json_encode(['status' => '200', 'message' => 'Digitador actualizado exitosamente']);
 		}
 		else
 		{
-			echo json_encode(['status' => '500', 'message' => 'Captioner no actualizado, ha ocurrido un error', 'response' => $result]);
+			echo json_encode(['status' => '500', 'message' => 'Digitador no actualizado, ha ocurrido un error', 'response' => $result]);
 		}
 	}
 
 	public function delete() {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
-			echo json_encode(['status' => '403','message' => 'Permission Denied']);
-			return null;
-		} else if($this->session->userdata('is_admin') == FALSE) {
 			echo json_encode(['status' => '403','message' => 'Permission Denied']);
 			return null;
 		}

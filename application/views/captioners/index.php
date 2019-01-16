@@ -10,11 +10,11 @@
 <div id="app">
   <v-app>
   <v-container>
-    <h2 v-cloak>Listado de Digitadores</h2>
+    <h2 v-cloak class="text-xs-center">Listado de Digitadores</h2>
     <v-layout>
       <v-flex>
         <v-dialog v-model="dialog" max-width="500px">
-          <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Crear digitador</v-btn>
+          <v-btn v-cloak slot="activator" color="222222" dark class="mb-2">Añadir digitador</v-btn>
           <v-card>
             <v-card-title>
               <span v-cloak class="headline">{{ formTitle }}</span>

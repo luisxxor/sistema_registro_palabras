@@ -8,7 +8,7 @@
 <div id="app">
   <v-app>
   <v-container>
-    <h2 v-cloak>Listado de Usuarios</h2>
+    <h2 v-cloak class="text-xs-center">Listado de Usuarios</h2>
     <v-layout>
       <v-flex>
         <v-dialog v-model="dialog" max-width="500px">
