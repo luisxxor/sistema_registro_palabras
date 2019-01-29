@@ -22,7 +22,7 @@
         <li><a href="<?= site_url('/captioners/') ?>">Digitadores</a></li>
         <li><a href="<?= site_url('/errors/') ?>">Errores</a></li>
         <?PHP if($this->session->userdata('is_admin')): ?>
-          <li><a href="<?= site_url('/users/list') ?>">Usuarios</a></li>
+          <li><a href="<?= site_url('/users/listado') ?>">Usuarios</a></li>
         <?PHP endif; ?>
         <li><a class="logout-button" href="<?=site_url('/users/logout')?>">Cerrar Sesión</a></li>
       </ul>
@@ -35,7 +35,7 @@
         <li><a href="<?= site_url('/captioners/') ?>">Digitadores</a></li>
         <li><a href="<?= site_url('/errors/') ?>">Errores</a></li>
         <?PHP if($this->session->userdata('is_admin')): ?>
-          <li><a href="<?= site_url('/users/list') ?>">Usuarios</a></li>
+          <li><a href="<?= site_url('/users/listado') ?>">Usuarios</a></li>
         <?PHP endif; ?>
         <li class="red darken-1"><a class="white-text" href="'<?=site_url('users/logout')?>'">Cerrar sesión</a></li>
       </ul>

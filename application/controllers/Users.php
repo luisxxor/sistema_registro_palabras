@@ -106,7 +106,7 @@ class Users extends CI_Controller {
         redirect('login');
 	}
 	
-	public function list() {
+	public function listado() {
 		if ($this->session->userdata('is_authenticated') == FALSE) {
 			redirect('users/login');
 		} else if($this->session->userdata('is_admin') == FALSE) {
